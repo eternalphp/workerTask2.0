@@ -1,4 +1,5 @@
 log.txt
 /logs
 /tasks
-/conf
+/conf/worker.status
+/conf/worker.pid

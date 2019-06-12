@@ -67,7 +67,7 @@ class Worker{
 	const ACTIVE_STATUS_FILE = ROOT .'/conf/worker.status'; //运行状态配置文件
 	const Worker_CONFIG_UPDATE = ROOT . '/conf/worker.update'; //监听配置文件是否更新
 	const Worker_VERSION_FILE = ROOT .'/conf/worker.version'; //版本配置文件
-	const Worker_PROCESS_FILE = __DIR__ . '/WorkerProcess.php'; //主进程文件
+	const Worker_PROCESS_FILE = __DIR__ . '/WorkerProcess'; //主进程文件
 	
 	static $workerErrorLog = ROOT . '/logs/error.log'; //错误日志
 	static $workerRuntimeLog = ROOT . '/logs/active.log'; //运行日志
