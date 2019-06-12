@@ -19,8 +19,8 @@ define('CURSOR_HIGHLIGHT',7); //反白显示
 define('CURSOR_INSIVIBLE',8); //不可见
 
 // 1、 读取配置文件 init
-// 2、 根据配置信息创建worker进程 workerRun
-// 3、 检查进程状态
+// 2、 创建worker进程
+// 3、 检查进程状态 分配任务
 // 4、 监听任务，解析配置，执行相应的任务
 // 5、 监听操作命令，对进程进行 start,stop,restart 操作
 
@@ -172,7 +172,7 @@ class Worker{
 								Worker::$taskProcessList[$pid]["taskList"][$val["taskid"]] = $val;
 							}
 						}else{
-							if(Worker::checkRule($rules)){
+							if(Worker::checkRule($rules) && date("s") == '00'){
 								if(!isset(Worker::$taskProcessList[$pid]["taskList"][$val["taskid"]])){
 									$val["sleep"] = 0;
 									Worker::$taskProcessList[$pid]["taskList"][$val["taskid"]] = $val;
@@ -189,6 +189,11 @@ class Worker{
 		});
 	}
 	
+	/**
+	 * 分配worker进程 已在任务队列不分配
+	 * @param int $taskid 
+	 * @return int | bool
+	 */
 	public static function getWorkerProcess($taskid){
 		if(Worker::$taskProcessList){
 			
@@ -300,7 +305,7 @@ class Worker{
 								
 								if(Worker::$taskList[$taskid]["status"] == 1) Worker::$taskList[$taskid]["status"] = self::STATUS_RUNNING;
 								Worker::$taskList[$taskid]["runtime"] = date("Y-m-d H:i:s");
-								Worker::$taskList[$taskid]["running"] = self::STATUS_RUNNING;
+								Worker::$taskList[$taskid]["running"] = $status['running'];
 								Worker::$taskList[$taskid]["pid"] = $val["pid"];
 								Worker::updateWorkerStatus(Worker::$taskList);
 								
@@ -311,7 +316,7 @@ class Worker{
 							
 							if(Worker::$taskList[$taskid]["status"] == 1) Worker::$taskList[$taskid]["status"] = self::STATUS_RUNNING;
 							Worker::$taskList[$taskid]["runtime"] = date("Y-m-d H:i:s");
-							Worker::$taskList[$taskid]["running"] = self::STATUS_RUNNING;
+							Worker::$taskList[$taskid]["running"] = $status['running'];
 							Worker::$taskList[$taskid]["pid"] = $val["pid"];
 							Worker::updateWorkerStatus(Worker::$taskList);
 						}
