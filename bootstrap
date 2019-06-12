@@ -1,0 +1,36 @@
+#!/usr/bin/env php
+<?php 
+
+require(__DIR__ ."/bin/Worker.php");
+
+switch($argv[1]){
+	case 'start':
+		Console::start();
+	break;
+	case 'stop':
+		Console::stop();
+	break;
+	case 'restart':
+		Console::restart();
+	break;
+	case 'status':
+		Console::status();
+	break;
+	case 'config':
+		Console::config();
+	break;
+	case '--help':
+		Console::help();
+	break;
+	
+	case '--version':
+	case '-v':
+	case '-V':
+		Console::version();
+	break;
+	
+	default:
+		Console::write(sprintf("Worker: [%s] is not a Worker command. See 'worker --help'.",$argv[1]));	
+		
+}
+?>

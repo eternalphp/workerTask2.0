@@ -1,0 +1,26 @@
+#!/usr/bin/env php
+<?php
+//服务进程
+date_default_timezone_set('Asia/Shanghai'); //默认时区
+
+require(__DIR__ . "/Worker.php");
+
+while(true){
+	
+	$config = json_decode(fread(STDIN,1024),true);
+	if($config != ''){
+		switch($config["cmd"]){
+			case 'running':
+				$rules = Worker::parseCommand($config);
+				Worker::cmdCommand($rules);
+			break;
+			case 'exit':
+				exit;
+			break;
+		}
+		unset($config);
+	}
+		
+	sleep(1);
+}
+?>
