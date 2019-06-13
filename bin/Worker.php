@@ -80,7 +80,7 @@ class Worker{
 	
 	const MAX_LOG_SIZE = 10*1024*1024; //字节
 	
-	static $processCount = 4;
+	static $workerProcesses = 1;
 	static $taskProcessList = array();
 	static $taskList = array();
 	
@@ -127,6 +127,9 @@ class Worker{
 					mkdir(dirname(self::$workerProcessPid),0777,true);
 				}
 			}
+			if(isset($global['worker_processes']) && intval($global['worker_processes']) > 0){
+				self::$workerProcesses = $global['worker_processes'];
+			}
 		}
 		
 		//标识当前服务已运行状态
@@ -146,7 +149,6 @@ class Worker{
 	public static function start(){
 		
 		Worker::init(); //始初化
-		call_user_func(Worker::$onMessage,array('title'=>sprintf("master[%d]",getmypid())));
 		
 		Worker::createWorkerProcess();
 		
@@ -239,8 +241,10 @@ class Worker{
      */
 	public static function createWorkerProcess(){
 		
+		call_user_func(Worker::$onMessage,array('title'=>sprintf("├─[%d] worker: master process",getmypid())));
+		
 		$pid = 1;
-		while($pid <= self::$processCount){
+		while($pid <= self::$workerProcesses){
 			$start_file = self::Worker_PROCESS_FILE;
 			$std_file = LOGPATH . basename($start_file).".out.txt";
 
@@ -263,7 +267,12 @@ class Worker{
 				'taskList'=>array()
 			);
 
-			call_user_func(Worker::$onMessage,array('title'=>sprintf("|--worker[%d]",$status["pid"])));
+			if($pid == self::$workerProcesses){
+				call_user_func(Worker::$onMessage,array('title'=>sprintf("└─[%d] worker: worker process",$status["pid"])));
+			}else{
+				call_user_func(Worker::$onMessage,array('title'=>sprintf("├─[%d] worker: worker process",$status["pid"])));
+			}
+			
 
 			$pid++;
 		}
@@ -287,7 +296,12 @@ class Worker{
 				$status = proc_get_status($process);
 
 				if(!$status['running']){
-					call_user_func(Worker::$onClose,array('title'=>sprintf("|--worker[%d]",$status["pid"])));
+					if(count(self::$taskProcessList) == 1){
+						call_user_func(Worker::$onClose,array('title'=>sprintf("└─[%d] worker: worker process",$status["pid"])));
+					}else{
+						call_user_func(Worker::$onClose,array('title'=>sprintf("├─[%d] worker: worker process",$status["pid"])));
+					}
+					
 					unset(self::$taskProcessList[$pid]);
 					continue;
 				}
@@ -1027,7 +1041,7 @@ class Console{
 				echo sprintf("[%s] %s was error! \n",date("Y-m-d H:i:s"),$res["title"]);
 			});
 			Worker::onClose(function($res){
-				echo sprintf("[%s] %s was close! \n",date("Y-m-d H:i:s"),$res["title"]);
+				echo sprintf("[%s] %s was closed! \n",date("Y-m-d H:i:s"),$res["title"]);
 			});
 			Worker::start();
 		}else{
@@ -1070,6 +1084,8 @@ class Console{
 			if($row){
 				if($row["running"] == 1){
 					$list[$taskid]["status"] = Worker::STATUS_STOPING;
+					$list[$taskid]["stoptime"] = date("Y-m-d H:i:s");
+					$list[$taskid]["running"] = 0;
 					Worker::updateWorkerStatus($list);
 					Worker::workerConfigUpdate(1);
 				}
