@@ -3,6 +3,11 @@
 
 require(__DIR__ ."/bin/Worker.php");
 
+if(!function_exists("shmop_open")){
+	Console::write("Please enable shmop_open");	
+	exit;
+}
+
 switch($argv[1]){
 	case 'start':
 		Console::start();

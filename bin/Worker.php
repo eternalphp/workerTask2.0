@@ -820,7 +820,7 @@ class Config{
 			
 				$conf = file_get_contents(worker::Worker_CONFIG_FILE);
 				$data = array();
-				preg_match_all("/worker\s?\{(.*?)\}/ies",$conf,$rules);	
+				preg_match_all("/worker\s?\{(.*?)\}/is",$conf,$rules);	
 				if($rules[1]){
 					foreach($rules[1] as $k=>$rule){
 						
@@ -830,7 +830,7 @@ class Config{
 							$row = array();
 							foreach($lines as $line){
 								if(trim($line) != ''){
-									preg_match("/([a-zA-Z_]+)\s+(.*?);+/ie",$line,$fields);
+									preg_match("/([a-zA-Z_]+)\s+(.*?);+/i",$line,$fields);
 									list($str,$key,$value) = $fields;
 									if($key == 'rules'){
 										$vals = explode(" ",$value);
@@ -858,7 +858,7 @@ class Config{
 				$conf = preg_replace("/server\s?\{(.*?)\}/is","",$conf);
 				$lines = explode("\n",$conf);
 				foreach($lines as $line){
-					preg_match("/([a-zA-Z_]+)\s+(.*?);+/ie",$line,$fields);
+					preg_match("/([a-zA-Z_]+)\s+(.*?);+/i",$line,$fields);
 					if($fields){
 						list($str,$key,$value) = $fields;
 						$data['global'][$key] = $value;
@@ -917,7 +917,7 @@ class Config{
 				
 				$conf = file_get_contents(worker::Worker_CONFIG_FILE);
 				
-				preg_match_all("/worker\s?\{(.*?)\}/ies",$conf,$matchs);
+				preg_match_all("/worker\s?\{(.*?)\}/is",$conf,$matchs);
 				if($matchs[0]){
 					foreach($matchs[0] as $worker){
 						$conf = str_replace($worker,'',$conf);
